@@ -21,10 +21,10 @@ app.post("/signup", async (req, res) => {
         res.status(200).send("user added successfully")
       })
       .catch((err) => {
-        res.status(500).send(err.message)
+        res.status(500).json({ message: err.message })
       })
   } catch (err) {
-    res.status(500).send(err.message)
+    res.status(500).json({ message: err.message })
   }
 })
 
@@ -42,7 +42,7 @@ app.get("/user-by-email", async (req, res) => {
       user,
     })
   } catch (err) {
-    res.status(500).send(err.message)
+    res.status(500).json({ message: err.message })
   }
 })
 
@@ -51,7 +51,7 @@ app.delete("/user", async (req, res) => {
     const user = await User.findByIdAndDelete(req.body.userId)
     res.status(200).json({ user })
   } catch (err) {
-    res.status(500).send(err.message)
+    res.status(500).json({ message: err.message })
   }
 })
 
@@ -60,11 +60,11 @@ app.patch("/user", async (req, res) => {
     const user = await User.findByIdAndUpdate(
       req.body.userId,
       { emailId: req.body.emailId },
-      { new: true }
+      { new: true, runValidators: true }
     )
     res.status(200).json({ user })
   } catch (err) {
-    res.status(500).send(err.message)
+    res.status(500).json({ message: err.message })
   }
 })
 
