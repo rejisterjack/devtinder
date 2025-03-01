@@ -42,6 +42,29 @@ app.post("/signup", async (req, res) => {
   }
 })
 
+app.post("/login", async (req, res) => {
+  try {
+    const user = await User.findOne({ emailId: req.body.emailId })
+    if (!user) {
+      return res.status(404).json({
+        message: "Invalid credentials", // to avoid giving hints to the user, we are sending the same message for both cases, preventing data leakage
+      })
+    } else {
+      const isMatch = await bcrypt.compare(req.body.password, user.password)
+      if (!isMatch) {
+        return res.status(400).json({
+          message: "Invalid credentials",
+        })
+      }
+      res.status(200).json({
+        message: "User logged in successfully",
+      })
+    }
+  } catch (err) {
+    res.status(500).json({ message: err.message })
+  }
+})
+
 app.get("/user-by-email", async (req, res) => {
   try {
     const user = await User.findOne({
