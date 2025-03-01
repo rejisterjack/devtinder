@@ -1,7 +1,9 @@
 const express = require("express")
 const connectDB = require("./config/database")
 const User = require("./models/user")
+const { validateSignUp } = require("./utils/validation")
 const app = express()
+const bcrypt = require("bcrypt")
 
 app.use(express.json())
 
@@ -13,8 +15,20 @@ app.get("/", (req, res) => {
 
 app.post("/signup", async (req, res) => {
   try {
+    validateSignUp(req.body.user)
     const userObj = req.body.user
-    const user = new User(userObj) // creating a new instance of the model User
+
+    const hashedPassword = await bcrypt.hash(userObj.password, 8)
+
+    const user = new User({
+      firstName: userObj.firstName,
+      lastName: userObj.lastName,
+      emailId: userObj.emailId,
+      password: hashedPassword,
+      age: userObj.age,
+      gender: userObj.gender,
+    }) // creating a new instance of the model User
+
     await user
       .save()
       .then(() => {
