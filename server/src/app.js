@@ -4,8 +4,11 @@ const User = require("./models/user")
 const { validateSignUp } = require("./utils/validation")
 const app = express()
 const bcrypt = require("bcrypt")
+const cookieParser = require("cookie-parser")
+const jwt = require("jsonwebtoken")
 
 app.use(express.json())
+app.use(cookieParser())
 
 const Port = process.env.PORT || 8000
 
@@ -56,10 +59,34 @@ app.post("/login", async (req, res) => {
           message: "Invalid credentials",
         })
       }
+      const token = await jwt.sign({ _id: user._id }, "secretkey", {
+        expiresIn: "2 days",
+      })
+      res.cookie("token", token)
       res.status(200).json({
         message: "User logged in successfully",
       })
     }
+  } catch (err) {
+    res.status(500).json({ message: err.message })
+  }
+})
+
+app.get("/profile", async (req, res) => {
+  try {
+    const token = req.cookies.token
+    if (!token) {
+      return res.status(401).json({ message: "Unauthorized" })
+    }
+    const userId = await jwt.verify(token, "secretkey")
+    if (!userId) {
+      return res.status(401).json({ message: "Unauthorized" })
+    }
+    const user = await User.findById(userId)
+    if (!user) {
+      return res.status(404).json({ message: "User not found" })
+    }
+    res.status(200).json({ user })
   } catch (err) {
     res.status(500).json({ message: err.message })
   }
