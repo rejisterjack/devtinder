@@ -24,6 +24,17 @@ const ConnectionRequestSchema = new Schema(
   }
 )
 
+ConnectionRequest.pre("save", function (next) {
+  const connectionRequest = this
+
+  if (connectionRequest.fromUserId.equals(connectionRequest.toUserId)) {
+    const error = new Error("Cannot create a connection request to yourself")
+    return next(error)
+  }
+
+  next()
+})
+
 const ConnectionRequest = mongoose.model(
   "ConnectionRequest",
   ConnectionRequestSchema
