@@ -4,10 +4,12 @@ const ConnectionRequestSchema = new Schema(
   {
     fromUserId: {
       type: Schema.Types.ObjectId,
+      ref: "User",
       required: true,
     },
     toUserId: {
       type: Schema.Types.ObjectId,
+      ref: "User",
       required: true,
     },
     status: {
