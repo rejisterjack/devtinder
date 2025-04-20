@@ -24,7 +24,9 @@ const ConnectionRequestSchema = new Schema(
   }
 )
 
-ConnectionRequest.pre("save", function (next) {
+ConnectionRequestSchema.index({ fromUserId: 1, toUserId: 1 }, { unique: true })
+
+ConnectionRequestSchema.pre("save", function (next) {
   const connectionRequest = this
 
   if (connectionRequest.fromUserId.equals(connectionRequest.toUserId)) {

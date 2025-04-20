@@ -38,6 +38,18 @@ const userSchema = new mongoose.Schema(
   }
 )
 
+userSchema.index({ emailId: 1 }, { unique: true })
+
+// userSchema.pre("save", async function (next) {
+//   const user = this
+
+//   if (user.isModified("password")) {
+//     user.password = await bcrypt.hash(user.password, 8)
+//   }
+
+//   next()
+// })
+
 userSchema.methods.getJWT = async function () {
   const user = this
   const token = jwt.sign({ _id: user._id }, "secretkey", {
