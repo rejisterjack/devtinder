@@ -26,13 +26,11 @@ router.post('/signup', async (req, res) => {
       return res.status(409).json({ message: 'Email already in use' })
     }
 
-    const hashedPassword = await bcrypt.hash(userObj.password, 12)
-
     const user = new User({
       firstName: userObj.firstName,
       lastName: userObj.lastName,
       emailId: userObj.emailId,
-      password: hashedPassword,
+      password: userObj.password, // Model will hash this in pre-save hook
       age: userObj.age,
       gender: userObj.gender,
     })

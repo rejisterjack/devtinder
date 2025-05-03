@@ -12,7 +12,7 @@ router.get('/', validateUser, async (req, res) => {
   }
 })
 
-router.get('/user-by-email', async (req, res) => {
+router.get('/user-by-email', validateUser, async (req, res) => {
   try {
     const user = await User.findOne({
       emailId: req.body.emailId,
@@ -30,8 +30,13 @@ router.get('/user-by-email', async (req, res) => {
   }
 })
 
-router.delete('/user', async (req, res) => {
+router.delete('/user', validateUser, async (req, res) => {
   try {
+    // Only allow users to delete themselves
+    if (req.user._id.toString() !== req.body.userId) {
+      return res.status(403).json({ message: 'Unauthorized action' })
+    }
+
     const user = await User.findByIdAndDelete(req.body.userId)
     res.status(200).json({ user })
   } catch (err) {
@@ -39,8 +44,13 @@ router.delete('/user', async (req, res) => {
   }
 })
 
-router.patch('/user', async (req, res) => {
+router.patch('/user', validateUser, async (req, res) => {
   try {
+    // Only allow users to update themselves
+    if (req.user._id.toString() !== req.body.userId) {
+      return res.status(403).json({ message: 'Unauthorized action' })
+    }
+
     const user = await User.findByIdAndUpdate(
       req.body.userId,
       { emailId: req.body.emailId },

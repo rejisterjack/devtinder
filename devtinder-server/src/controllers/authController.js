@@ -1,17 +1,18 @@
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
-const User = require('../models/User');
+const User = require('../models/user');
+const config = require('../config/config');
 
 exports.login = async (req, res) => {
   try {
-    const { email, password } = req.body;
+    const { emailId, password } = req.body;
     
     // Trim whitespace and convert email to lowercase for consistent comparison
-    const normalizedEmail = email.trim().toLowerCase();
+    const normalizedEmail = emailId.trim().toLowerCase();
     
     // Find user with case-insensitive email search
     const user = await User.findOne({ 
-      email: { $regex: new RegExp(`^${normalizedEmail}$`, 'i') } 
+      emailId: { $regex: new RegExp(`^${normalizedEmail}$`, 'i') } 
     });
 
     if (!user) {
@@ -26,19 +27,16 @@ exports.login = async (req, res) => {
     }
 
     // Generate JWT token
-    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
+    const token = jwt.sign({ _id: user._id }, config.JWT_SECRET, {
       expiresIn: '24h',
     });
 
+    // Set token as cookie
+    res.cookie('token', token, config.COOKIE_OPTIONS);
+
     res.status(200).json({
       message: 'Login successful',
-      token,
-      user: {
-        id: user._id,
-        name: user.name,
-        email: user.email,
-        // Include other needed user data, but not the password
-      },
+      userId: user._id,
     });
   } catch (error) {
     console.error('Login error:', error);
