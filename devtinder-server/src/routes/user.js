@@ -1,15 +1,15 @@
-const validateUser = require("../middlewares/auth")
-const ConnectionRequest = require("../models/connectionRequest")
-const User = require("../models/user")
+const validateUser = require('../middlewares/auth')
+const ConnectionRequest = require('../models/connectionRequest')
+const User = require('../models/user')
 
-const router = require("express").Router()
+const router = require('express').Router()
 
-router.get("/user/requests/received", validateUser, async (req, res) => {
+router.get('/user/requests/received', validateUser, async (req, res) => {
   try {
     const connectionRequests = await ConnectionRequest.find({
       toUserId: req.user._id,
-      status: "interested",
-    }).populate("fromUserId", " firstName lastName emailId")
+      status: 'interested',
+    }).populate('fromUserId', ' firstName lastName emailId')
 
     res.status(200).json(connectionRequests)
   } catch (error) {
@@ -17,16 +17,16 @@ router.get("/user/requests/received", validateUser, async (req, res) => {
   }
 })
 
-router.get("/user/connections", validateUser, async (req, res) => {
+router.get('/user/connections', validateUser, async (req, res) => {
   try {
     const connections = await ConnectionRequest.find({
       $or: [
-        { fromUserId: req.user._id, status: "accepted" },
-        { toUserId: req.user._id, status: "accepted" },
+        { fromUserId: req.user._id, status: 'accepted' },
+        { toUserId: req.user._id, status: 'accepted' },
       ],
     })
-      .populate("fromUserId", "firstName lastName emailId")
-      .populate("toUserId", "firstName lastName emailId")
+      .populate('fromUserId', 'firstName lastName emailId')
+      .populate('toUserId', 'firstName lastName emailId')
 
     const data = connections.map((row) => {
       if (row.fromUserId._id.toString() === req.user._id.toString()) {
@@ -42,16 +42,16 @@ router.get("/user/connections", validateUser, async (req, res) => {
   }
 })
 
-router.get("/feed", validateUser, async (req, res) => {
+router.get('/feed', validateUser, async (req, res) => {
   try {
     const page = parseInt(req.query.page) || 1
-    const limit = parseInt(req.query.limit) || 10
-    limit = limit > 50 ? 50 : limit
+    const requestedLimit = parseInt(req.query.limit) || 10
+    const limit = requestedLimit > 50 ? 50 : requestedLimit
     const skip = (page - 1) * limit
 
     const connections = await ConnectionRequest.find({
       $or: [{ fromUserId: req.user._id }, { toUserId: req.user._id }],
-    }).select("fromUserId toUserId")
+    }).select('fromUserId toUserId')
 
     const hideUsersFromFeed = new Set()
     connections.forEach((row) => {
@@ -65,12 +65,28 @@ router.get("/feed", validateUser, async (req, res) => {
         { _id: { $nin: Array.from(hideUsersFromFeed) } },
       ],
     })
-      .select("firstName lastName emailId profileImageUrl")
+      .select('firstName lastName emailId profileImageUrl')
       .skip(skip)
       .limit(limit)
 
-    res.status(200).json({ data: users })
+    const totalCount = await User.countDocuments({
+      $and: [
+        { _id: { $ne: req.user._id } },
+        { _id: { $nin: Array.from(hideUsersFromFeed) } },
+      ],
+    })
+
+    res.status(200).json({
+      data: users,
+      pagination: {
+        currentPage: page,
+        totalPages: Math.ceil(totalCount / limit),
+        totalCount: totalCount,
+      },
+    })
   } catch (error) {
     res.status(500).json({ message: error.message })
   }
 })
+
+module.exports = router
