@@ -1,4 +1,6 @@
 // Environment variables configuration
+require('dotenv').config()
+
 const config = {
   // In production, these would come from process.env
   JWT_SECRET: process.env.JWT_SECRET,
