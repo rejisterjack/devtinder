@@ -1,0 +1,334 @@
+{
+  "info": {
+    "name": "DevTinder API",
+    "description": "A collection of all the DevTinder API endpoints",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_postman_id": "b70d3ca1-8dc1-4eed-b0e2-b28b59ad6bfb"
+  },
+  "item": [
+    {
+      "name": "Health Check",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{baseUrl}}/",
+          "host": ["{{baseUrl}}"]
+        },
+        "description": "Check if the API is running"
+      },
+      "response": []
+    },
+    {
+      "name": "Authentication",
+      "item": [
+        {
+          "name": "Sign Up",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{baseUrl}}/auth/signup",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "signup"]
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"user\": {\n    \"firstName\": \"John\",\n    \"lastName\": \"Doe\",\n    \"emailId\": \"john.doe@example.com\",\n    \"password\": \"Password123!\",\n    \"age\": 28,\n    \"gender\": \"male\"\n  }\n}"
+            },
+            "description": "Create a new user account"
+          },
+          "response": []
+        },
+        {
+          "name": "Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    pm.environment.set(\"userId\", pm.response.json().userId);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "login"]
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"emailId\": \"john.doe@example.com\",\n  \"password\": \"Password123!\"\n}"
+            },
+            "description": "Login with email and password. The token will be stored as a cookie."
+          },
+          "response": []
+        },
+        {
+          "name": "Logout",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{baseUrl}}/auth/logout",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "logout"]
+            },
+            "description": "Logout and clear authentication cookie"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Profile",
+      "item": [
+        {
+          "name": "Get Profile",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/profile",
+              "host": ["{{baseUrl}}"],
+              "path": ["profile"]
+            },
+            "description": "Get the profile of the authenticated user"
+          },
+          "response": []
+        },
+        {
+          "name": "Find User by Email",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/profile/user-by-email",
+              "host": ["{{baseUrl}}"],
+              "path": ["profile", "user-by-email"]
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"emailId\": \"john.doe@example.com\"\n}"
+            },
+            "description": "Find a user by their email address"
+          },
+          "response": []
+        },
+        {
+          "name": "Edit Profile",
+          "request": {
+            "method": "PATCH",
+            "url": {
+              "raw": "{{baseUrl}}/profile/edit/{{userId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["profile", "edit", "{{userId}}"]
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"firstName\": \"John\",\n  \"lastName\": \"Smith\",\n  \"age\": 30,\n  \"gender\": \"male\"\n}"
+            },
+            "description": "Edit the authenticated user's profile information"
+          },
+          "response": []
+        },
+        {
+          "name": "Update User Email",
+          "request": {
+            "method": "PATCH",
+            "url": {
+              "raw": "{{baseUrl}}/profile/user",
+              "host": ["{{baseUrl}}"],
+              "path": ["profile", "user"]
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"userId\": \"{{userId}}\",\n  \"emailId\": \"new.email@example.com\"\n}"
+            },
+            "description": "Update a user's email address"
+          },
+          "response": []
+        },
+        {
+          "name": "Delete User",
+          "request": {
+            "method": "DELETE",
+            "url": {
+              "raw": "{{baseUrl}}/profile/user",
+              "host": ["{{baseUrl}}"],
+              "path": ["profile", "user"]
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"userId\": \"{{userId}}\"\n}"
+            },
+            "description": "Delete a user account"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Feed",
+      "item": [
+        {
+          "name": "Get User Feed",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/feed?page=1&limit=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "feed"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                }
+              ]
+            },
+            "description": "Get a paginated list of potential connections for the authenticated user"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Connections",
+      "item": [
+        {
+          "name": "Send Connection Request",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{baseUrl}}/api/request/send/interested/{{targetUserId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "request", "send", "interested", "{{targetUserId}}"]
+            },
+            "description": "Send a connection request to another user with 'interested' status"
+          },
+          "response": []
+        },
+        {
+          "name": "Review Connection Request",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{baseUrl}}/api/request/review/accepted/{{requestId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "request", "review", "accepted", "{{requestId}}"]
+            },
+            "description": "Accept or reject a connection request (replace 'accepted' with 'rejected' to reject)"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Received Requests",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/user/requests/received",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "user", "requests", "received"]
+            },
+            "description": "Get connection requests received by the authenticated user"
+          },
+          "response": []
+        },
+        {
+          "name": "Get User Connections",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/user/connections",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "user", "connections"]
+            },
+            "description": "Get all connections of the authenticated user"
+          },
+          "response": []
+        }
+      ]
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [""]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "exec": [""]
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8000",
+      "type": "string"
+    },
+    {
+      "key": "userId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "targetUserId",
+      "value": "",
+      "type": "string",
+      "description": "ID of a user to send a connection request to"
+    },
+    {
+      "key": "requestId",
+      "value": "",
+      "type": "string",
+      "description": "ID of a connection request to review"
+    }
+  ]
+}
