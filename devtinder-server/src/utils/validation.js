@@ -17,8 +17,8 @@ const validateSignUp = (userData) => {
     )
   }
 
-  if (firstName.trim().length < 2) {
-    throw new Error('First name must be at least 2 characters long')
+  if (firstName.trim().length < 3) {
+    throw new Error('First name must be at least 3 characters long')
   }
 }
 

@@ -8,6 +8,15 @@ const router = express.Router()
 
 router.post('/signup', async (req, res) => {
   try {
+    console.log('Signup request received:', req.body)
+    
+    // Check if request body has the expected structure
+    if (!req.body.user) {
+      return res.status(400).json({ 
+        message: 'Invalid request format. Expected { user: {...} }' 
+      })
+    }
+    
     validateSignUp(req.body.user)
     const userObj = req.body.user
 
@@ -42,9 +51,19 @@ router.post('/signup', async (req, res) => {
       userId: user._id,
     })
   } catch (err) {
+    console.error('Signup error:', err)
+    
     if (err.code === 11000) {
       return res.status(409).json({ message: 'Email already in use' })
     }
+    
+    if (err.name === 'ValidationError') {
+      return res.status(400).json({ 
+        message: 'Validation error', 
+        details: err.message 
+      })
+    }
+    
     res.status(400).json({ message: err.message })
   }
 })

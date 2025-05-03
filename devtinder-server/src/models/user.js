@@ -9,6 +9,7 @@ const userSchema = new mongoose.Schema(
       type: String,
       minLength: [3, "First name must be at least 3 characters long"],
       maxLength: 50,
+      required: true
     },
     lastName: {
       type: String,
@@ -17,6 +18,7 @@ const userSchema = new mongoose.Schema(
       type: String,
       unique: true,
       trim: true,
+      required: true,
       validate: (value) => {
         if (!validator.isEmail(value)) {
           throw new Error("Invalid Email")
@@ -25,6 +27,7 @@ const userSchema = new mongoose.Schema(
     },
     password: {
       type: String,
+      required: true
     },
     age: {
       type: Number,
@@ -40,15 +43,15 @@ const userSchema = new mongoose.Schema(
 
 userSchema.index({ emailId: 1 }, { unique: true })
 
-// userSchema.pre("save", async function (next) {
-//   const user = this
+userSchema.pre("save", async function (next) {
+  const user = this
 
-//   if (user.isModified("password")) {
-//     user.password = await bcrypt.hash(user.password, 8)
-//   }
+  if (user.isModified("password")) {
+    user.password = await bcrypt.hash(user.password, 8)
+  }
 
-//   next()
-// })
+  next()
+})
 
 userSchema.methods.getJWT = async function () {
   const user = this
